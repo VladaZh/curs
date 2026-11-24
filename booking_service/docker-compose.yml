@@ -1,0 +1,27 @@
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: booking
+      POSTGRES_PASSWORD: booking
+      POSTGRES_DB: booking
+    ports:
+      - "5435:5432"
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+  booking:
+    build: .
+    environment:
+      BOOKING_DATABASE_URL: postgresql+asyncpg://booking:booking@db:5432/booking
+      BOOKING_RABBITMQ_URL: amqp://guest:guest@rabbitmq/
+      BOOKING_JWT_SECRET: dev-secret
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+      - rabbitmq
