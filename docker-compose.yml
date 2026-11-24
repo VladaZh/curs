@@ -1,0 +1,59 @@
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: booking
+      POSTGRES_PASSWORD: booking
+      POSTGRES_DB: booking
+    volumes:
+      - ./infra/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
+    ports:
+      - "5434:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U booking"]
+      interval: 3s
+      retries: 20
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 5s
+      retries: 20
+
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+
+  catalog:
+    build: ./catalog_service
+    environment:
+      CATALOG_DATABASE_URL: postgresql+asyncpg://booking:booking@db:5432/catalog
+      CATALOG_RABBITMQ_URL: amqp://guest:guest@rabbitmq/
+      CATALOG_REDIS_URL: redis://redis:6379/0
+      CATALOG_JWT_SECRET: dev-secret
+    ports:
+      - "88:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+  booking:
+    build: ./booking_service
+    environment:
+      BOOKING_DATABASE_URL: postgresql+asyncpg://booking:booking@db:5432/booking
+      BOOKING_RABBITMQ_URL: amqp://guest:guest@rabbitmq/
+      BOOKING_JWT_SECRET: dev-secret
+    ports:
+      - "888:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
