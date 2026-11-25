@@ -1,1 +1,3 @@
 CREATE DATABASE catalog;
+CREATE DATABASE identity;
+CREATE DATABASE notification;

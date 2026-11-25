@@ -57,3 +57,44 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
+
+  identity:
+    build: ./identity_service
+    environment:
+      IDENTITY_DATABASE_URL: postgresql+asyncpg://booking:booking@db:5432/identity
+      IDENTITY_RABBITMQ_URL: amqp://guest:guest@rabbitmq/
+      IDENTITY_JWT_SECRET: dev-secret
+      IDENTITY_BOOTSTRAP_ADMIN_EMAIL: admin@example.com
+      IDENTITY_BOOTSTRAP_ADMIN_PASSWORD: admin12345
+    ports:
+      - "8002:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+  mailpit:
+    image: axllent/mailpit
+    ports:
+      - "8025:8025"
+      - "1025:1025"
+
+  notification:
+    build: ./notification_service
+    environment:
+      NOTIFICATION_DATABASE_URL: postgresql+asyncpg://booking:booking@db:5432/notification
+      NOTIFICATION_RABBITMQ_URL: amqp://guest:guest@rabbitmq/
+      NOTIFICATION_JWT_SECRET: dev-secret
+      NOTIFICATION_SMTP_HOST: mailpit
+      NOTIFICATION_SMTP_PORT: "1025"
+      NOTIFICATION_SMTP_STARTTLS: "false"
+    ports:
+      - "8003:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      mailpit:
+        condition: service_started

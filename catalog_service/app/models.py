@@ -22,8 +22,6 @@ from .db import Base
 
 
 class Restaurant(Base):
-    """Точка сети (филиал). В Booking это restaurant_id."""
-
     __tablename__ = "restaurants"
 
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
@@ -51,7 +49,7 @@ class OpeningHours(Base):
     restaurant_id: Mapped[uuid.UUID] = mapped_column(
         ForeignKey("restaurants.id", ondelete="CASCADE")
     )
-    weekday: Mapped[int] = mapped_column(Integer)  # 0 = понедельник
+    weekday: Mapped[int] = mapped_column(Integer)
     opens: Mapped[time] = mapped_column(Time)
     closes: Mapped[time] = mapped_column(Time)
 
@@ -87,7 +85,7 @@ class OutboxEvent(Base):
     __tablename__ = "outbox"
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
-    topic: Mapped[str] = mapped_column(String(64))  # = routing key
+    topic: Mapped[str] = mapped_column(String(64))
     payload: Mapped[dict] = mapped_column(JSONB)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()

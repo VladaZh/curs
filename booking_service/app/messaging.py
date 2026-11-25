@@ -58,7 +58,6 @@ class RabbitPublisher:
 
 
 async def relay_loop(publisher: Publisher, stop: asyncio.Event) -> None:
-    """Забирает неотправленные события; at-least-once, консьюмеры дедуплицируют по message_id."""
     while not stop.is_set():
         sent = 0
         try:
@@ -93,7 +92,6 @@ async def expiry_loop(stop: asyncio.Event) -> None:
 
 
 async def apply_table_event(data: dict) -> None:
-    """Идемпотентный upsert: дубли и устаревшие версии игнорируются."""
     stmt = insert(TableReplica).values(
         id=data["table_id"],
         restaurant_id=data["restaurant_id"],

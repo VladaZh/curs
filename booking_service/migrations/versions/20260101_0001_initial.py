@@ -47,7 +47,6 @@ def upgrade() -> None:
     )
     op.create_index("ix_bookings_restaurant_id", "bookings", ["restaurant_id"])
     op.create_index("ix_bookings_guest_id", "bookings", ["guest_id"])
-    # Быстрый поиск просроченных холдов для фоновой задачи
     op.create_index(
         "ix_bookings_pending_expires",
         "bookings",
@@ -55,7 +54,6 @@ def upgrade() -> None:
         postgresql_where=sa.text("status = 'PENDING'"),
     )
 
-    # Главная гарантия целостности. Alembic не умеет автогенерировать EXCLUDE, поэтому SQL вручную.
     op.execute("""
         ALTER TABLE bookings
         ADD CONSTRAINT no_overlapping_bookings

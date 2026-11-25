@@ -13,12 +13,11 @@ bearer = HTTPBearer()
 @dataclass(frozen=True)
 class CurrentUser:
     id: uuid.UUID
-    role: str  # guest | staff | admin
-    restaurant_id: uuid.UUID | None  # для staff
+    role: str
+    restaurant_id: uuid.UUID | None
 
 
 def current_user(creds: HTTPAuthorizationCredentials = Depends(bearer)) -> CurrentUser:
-    """Токен выдаёт Identity Service; здесь проверяем только подпись и claims."""
     try:
         c = jwt.decode(
             creds.credentials, settings.jwt_secret, algorithms=[settings.jwt_algorithm]

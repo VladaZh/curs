@@ -156,8 +156,6 @@ class CatalogService:
         return TableOut.model_validate(t)
 
     async def resync(self, user: CurrentUser) -> int:
-        """Переиздаёт текущее состояние всех сущностей. Реплики с актуальной версией его проигнорируют,
-        а новые или отставшие догонят каталог."""
         self._require_admin(user)
         n = 0
         for r in (await self.s.scalars(select(Restaurant))).all():
