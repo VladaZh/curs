@@ -15,7 +15,12 @@ def upgrade() -> None:
         "inbox",
         sa.Column("source", sa.String(64), primary_key=True),
         sa.Column("message_id", sa.String(64), primary_key=True),
-        sa.Column("received_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
+        sa.Column(
+            "received_at",
+            sa.DateTime(timezone=True),
+            server_default=sa.func.now(),
+            nullable=False,
+        ),
     )
     op.create_index("ix_inbox_received_at", "inbox", ["received_at"])
 
@@ -52,13 +57,22 @@ def upgrade() -> None:
         sa.Column("dedup_key", sa.String(128), nullable=False),
         sa.Column("last_error", sa.Text(), nullable=True),
         sa.Column("sent_at", sa.DateTime(timezone=True), nullable=True),
-        sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
+        sa.Column(
+            "created_at",
+            sa.DateTime(timezone=True),
+            server_default=sa.func.now(),
+            nullable=False,
+        ),
         sa.UniqueConstraint("dedup_key", name="uq_notification_dedup"),
     )
     op.create_index("ix_notifications_user_id", "notifications", ["user_id"])
     op.create_index("ix_notifications_booking_id", "notifications", ["booking_id"])
-    op.create_index("ix_notifications_due", "notifications", ["next_attempt_at"],
-                    postgresql_where=sa.text("status IN ('PENDING','SENDING')"))
+    op.create_index(
+        "ix_notifications_due",
+        "notifications",
+        ["next_attempt_at"],
+        postgresql_where=sa.text("status IN ('PENDING','SENDING')"),
+    )
 
 
 def downgrade() -> None:

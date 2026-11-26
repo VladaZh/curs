@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     jwt_algorithm: str = "HS256"
     cache_ttl_seconds: int = 300
     list_cache_ttl_seconds: int = 60
+    seed_demo: bool = False
 
 
 settings = Settings()

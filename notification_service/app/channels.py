@@ -8,11 +8,13 @@ from .templates import RenderedMessage
 log = logging.getLogger("notification.channels")
 
 
-class PermanentError(Exception):...
+class PermanentError(Exception): ...
 
 
 class Channel(Protocol):
-    async def send(self, to: str, message: RenderedMessage, idempotency_key: str) -> None: ...
+    async def send(
+        self, to: str, message: RenderedMessage, idempotency_key: str
+    ) -> None: ...
 
 
 def _mask(addr: str) -> str:
@@ -24,7 +26,13 @@ class LogChannel:
         self.name = name
 
     async def send(self, to, message, idempotency_key):
-        log.info("[%s] to=%s subject=%r body=%r", self.name, _mask(to), message.subject, message.body)
+        log.info(
+            "[%s] to=%s subject=%r body=%r",
+            self.name,
+            _mask(to),
+            message.subject,
+            message.body,
+        )
 
 
 class SmtpEmailChannel:
@@ -39,9 +47,15 @@ class SmtpEmailChannel:
         em["Message-ID"] = f"<{idempotency_key}@notification.local>"
         em.set_content(message.body)
         try:
-            await aiosmtplib.send(em, hostname=self.s.smtp_host, port=self.s.smtp_port,
-                                  username=self.s.smtp_username, password=self.s.smtp_password,
-                                  start_tls=self.s.smtp_starttls, timeout=15)
+            await aiosmtplib.send(
+                em,
+                hostname=self.s.smtp_host,
+                port=self.s.smtp_port,
+                username=self.s.smtp_username,
+                password=self.s.smtp_password,
+                start_tls=self.s.smtp_starttls,
+                timeout=15,
+            )
         except aiosmtplib.SMTPRecipientsRefused as e:
             raise PermanentError(str(e)) from e
 

@@ -44,8 +44,13 @@ class CurrentUser:
 def create_access_token(user) -> tuple[str, int]:
     now = datetime.now(timezone.utc)
     ttl = timedelta(minutes=settings.access_ttl_minutes)
-    claims = {"sub": str(user.id), "role": user.role, "iss": settings.jwt_issuer,
-              "iat": now, "exp": now + ttl}
+    claims = {
+        "sub": str(user.id),
+        "role": user.role,
+        "iss": settings.jwt_issuer,
+        "iat": now,
+        "exp": now + ttl,
+    }
     if user.restaurant_id:
         claims["restaurant_id"] = str(user.restaurant_id)
     token = jwt.encode(claims, settings.jwt_secret, algorithm=settings.jwt_algorithm)
@@ -54,8 +59,12 @@ def create_access_token(user) -> tuple[str, int]:
 
 def decode_access_token(token: str) -> CurrentUser:
     try:
-        c = jwt.decode(token, settings.jwt_secret, algorithms=[settings.jwt_algorithm],
-                       issuer=settings.jwt_issuer)
+        c = jwt.decode(
+            token,
+            settings.jwt_secret,
+            algorithms=[settings.jwt_algorithm],
+            issuer=settings.jwt_issuer,
+        )
         return CurrentUser(uuid.UUID(c["sub"]), c.get("role", "guest"))
     except (jwt.PyJWTError, KeyError, ValueError):
         raise InvalidToken("Недействительный токен")

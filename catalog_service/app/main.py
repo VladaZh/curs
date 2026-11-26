@@ -10,6 +10,7 @@ from .cache import NullCache, RedisCache
 from .config import settings
 from .errors import DomainError
 from .messaging import LogPublisher, RabbitPublisher, relay_loop
+from .seed import seed_demo
 
 logging.basicConfig(level=logging.INFO)
 
@@ -19,6 +20,11 @@ async def lifespan(app: FastAPI):
     app.state.cache = (
         RedisCache(settings.redis_url) if settings.redis_url else NullCache()
     )
+    if settings.seed_demo:
+        try:
+            await seed_demo(app.state.cache)
+        except Exception:
+            logging.getLogger("catalog.seed").exception("seed failed")
     publisher = (
         RabbitPublisher(settings.rabbitmq_url)
         if settings.rabbitmq_url

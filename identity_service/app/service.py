@@ -6,12 +6,25 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from .config import settings
-from .errors import (AccountLocked, Conflict, Forbidden, InvalidCredentials, InvalidInput,
-                                         InvalidToken, NotFound)
+from .errors import (
+    AccountLocked,
+    Conflict,
+    Forbidden,
+    InvalidCredentials,
+    InvalidInput,
+    InvalidToken,
+    NotFound,
+)
 from .models import OutboxEvent, RefreshToken, User
 from .schemas import AdminCreateUser, AdminPatchUser, MePatch, RegisterIn, TokenPair
-from .security import (DUMMY_HASH, CurrentUser, create_access_token, hash_token, new_refresh_token,
-                        passwords)
+from .security import (
+    DUMMY_HASH,
+    CurrentUser,
+    create_access_token,
+    hash_token,
+    new_refresh_token,
+    passwords,
+)
 
 
 def _now() -> datetime:
@@ -27,10 +40,14 @@ class IdentityService:
         self.s = session
 
     async def register(self, data: RegisterIn) -> User:
-        return await self._create_user(data.email, data.password, data.full_name, data.phone, "guest", None)
+        return await self._create_user(
+            data.email, data.password, data.full_name, data.phone, "guest", None
+        )
 
     async def login(self, email: str, password: str) -> TokenPair:
-        user = await self.s.scalar(select(User).where(User.email == _norm_email(email)).with_for_update())
+        user = await self.s.scalar(
+            select(User).where(User.email == _norm_email(email)).with_for_update()
+        )
         if user is None:
             await passwords.verify(DUMMY_HASH, password)
             raise InvalidCredentials("Неверный email или пароль")
@@ -55,8 +72,11 @@ class IdentityService:
         return pair
 
     async def refresh(self, raw_token: str) -> TokenPair:
-        rt = await self.s.scalar(select(RefreshToken).where(
-            RefreshToken.token_hash == hash_token(raw_token)).with_for_update())
+        rt = await self.s.scalar(
+            select(RefreshToken)
+            .where(RefreshToken.token_hash == hash_token(raw_token))
+            .with_for_update()
+        )
         if rt is None:
             raise InvalidToken("Недействительный refresh-токен")
         if rt.revoked_at is not None:
@@ -78,7 +98,9 @@ class IdentityService:
         return pair
 
     async def logout(self, raw_token: str) -> None:
-        rt = await self.s.scalar(select(RefreshToken).where(RefreshToken.token_hash == hash_token(raw_token)))
+        rt = await self.s.scalar(
+            select(RefreshToken).where(RefreshToken.token_hash == hash_token(raw_token))
+        )
         if rt is not None:
             await self._revoke_family(rt.family_id)
             await self.s.commit()
@@ -98,12 +120,22 @@ class IdentityService:
         await self.s.commit()
         return user
 
-    async def admin_create_user(self, actor: CurrentUser, data: AdminCreateUser) -> User:
+    async def admin_create_user(
+        self, actor: CurrentUser, data: AdminCreateUser
+    ) -> User:
         self._require_admin(actor)
-        return await self._create_user(data.email, data.password, data.full_name, data.phone,
-                                       data.role, data.restaurant_id)
+        return await self._create_user(
+            data.email,
+            data.password,
+            data.full_name,
+            data.phone,
+            data.role,
+            data.restaurant_id,
+        )
 
-    async def admin_update_user(self, actor: CurrentUser, user_id: uuid.UUID, patch: AdminPatchUser) -> User:
+    async def admin_update_user(
+        self, actor: CurrentUser, user_id: uuid.UUID, patch: AdminPatchUser
+    ) -> User:
         self._require_admin(actor)
         user = await self._lock_user(user_id)
         for k, v in patch.model_dump(exclude_unset=True).items():
@@ -128,13 +160,25 @@ class IdentityService:
         return len(users)
 
     async def ensure_admin(self, email: str, password: str) -> None:
-        exists = await self.s.scalar(select(User.id).where(User.email == _norm_email(email)))
+        exists = await self.s.scalar(
+            select(User.id).where(User.email == _norm_email(email))
+        )
         if not exists:
-            await self._create_user(email, password, "Administrator", None, "admin", None)
+            await self._create_user(
+                email, password, "Administrator", None, "admin", None
+            )
 
-    async def _create_user(self, email, password, full_name, phone, role, restaurant_id) -> User:
-        user = User(email=_norm_email(email), password_hash=await passwords.hash(password),
-                    full_name=full_name, phone=phone, role=role, restaurant_id=restaurant_id)
+    async def _create_user(
+        self, email, password, full_name, phone, role, restaurant_id
+    ) -> User:
+        user = User(
+            email=_norm_email(email),
+            password_hash=await passwords.hash(password),
+            full_name=full_name,
+            phone=phone,
+            role=role,
+            restaurant_id=restaurant_id,
+        )
         self.s.add(user)
         try:
             await self.s.flush()
@@ -148,20 +192,36 @@ class IdentityService:
     def _issue_tokens(self, user: User, family_id: uuid.UUID) -> TokenPair:
         access, expires_in = create_access_token(user)
         raw = new_refresh_token()
-        self.s.add(RefreshToken(user_id=user.id, family_id=family_id, token_hash=hash_token(raw),
-                                expires_at=_now() + timedelta(days=settings.refresh_ttl_days)))
+        self.s.add(
+            RefreshToken(
+                user_id=user.id,
+                family_id=family_id,
+                token_hash=hash_token(raw),
+                expires_at=_now() + timedelta(days=settings.refresh_ttl_days),
+            )
+        )
         return TokenPair(access_token=access, refresh_token=raw, expires_in=expires_in)
 
     async def _revoke_family(self, family_id: uuid.UUID) -> None:
-        await self.s.execute(update(RefreshToken).where(
-            RefreshToken.family_id == family_id, RefreshToken.revoked_at.is_(None)).values(revoked_at=_now()))
+        await self.s.execute(
+            update(RefreshToken)
+            .where(
+                RefreshToken.family_id == family_id, RefreshToken.revoked_at.is_(None)
+            )
+            .values(revoked_at=_now())
+        )
 
     async def _revoke_all(self, user_id: uuid.UUID) -> None:
-        await self.s.execute(update(RefreshToken).where(
-            RefreshToken.user_id == user_id, RefreshToken.revoked_at.is_(None)).values(revoked_at=_now()))
+        await self.s.execute(
+            update(RefreshToken)
+            .where(RefreshToken.user_id == user_id, RefreshToken.revoked_at.is_(None))
+            .values(revoked_at=_now())
+        )
 
     async def _lock_user(self, user_id: uuid.UUID) -> User:
-        user = await self.s.scalar(select(User).where(User.id == user_id).with_for_update())
+        user = await self.s.scalar(
+            select(User).where(User.id == user_id).with_for_update()
+        )
         if user is None:
             raise NotFound("Пользователь не найден")
         return user
@@ -172,7 +232,19 @@ class IdentityService:
             raise Forbidden("Только для администратора сети")
 
     def _emit(self, u: User, topic: str) -> None:
-        self.s.add(OutboxEvent(topic=topic, payload={
-            "user_id": str(u.id), "email": u.email, "full_name": u.full_name, "phone": u.phone,
-            "role": u.role, "restaurant_id": str(u.restaurant_id) if u.restaurant_id else None,
-            "is_active": u.is_active, "version": u.version, "occurred_at": _now().isoformat()}))
+        self.s.add(
+            OutboxEvent(
+                topic=topic,
+                payload={
+                    "user_id": str(u.id),
+                    "email": u.email,
+                    "full_name": u.full_name,
+                    "phone": u.phone,
+                    "role": u.role,
+                    "restaurant_id": str(u.restaurant_id) if u.restaurant_id else None,
+                    "is_active": u.is_active,
+                    "version": u.version,
+                    "occurred_at": _now().isoformat(),
+                },
+            )
+        )

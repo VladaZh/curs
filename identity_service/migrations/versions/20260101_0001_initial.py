@@ -24,23 +24,46 @@ def upgrade() -> None:
         sa.Column("failed_attempts", sa.Integer(), nullable=False),
         sa.Column("locked_until", sa.DateTime(timezone=True), nullable=True),
         sa.Column("version", sa.Integer(), nullable=False),
-        sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
-        sa.Column("updated_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
+        sa.Column(
+            "created_at",
+            sa.DateTime(timezone=True),
+            server_default=sa.func.now(),
+            nullable=False,
+        ),
+        sa.Column(
+            "updated_at",
+            sa.DateTime(timezone=True),
+            server_default=sa.func.now(),
+            nullable=False,
+        ),
         sa.UniqueConstraint("email", name="uq_users_email"),
         sa.CheckConstraint("role IN ('guest','staff','admin')", name="ck_user_role"),
-        sa.CheckConstraint("role <> 'staff' OR restaurant_id IS NOT NULL", name="ck_staff_has_restaurant"),
+        sa.CheckConstraint(
+            "role <> 'staff' OR restaurant_id IS NOT NULL",
+            name="ck_staff_has_restaurant",
+        ),
         sa.CheckConstraint("email = lower(email)", name="ck_email_lowercase"),
     )
 
     op.create_table(
         "refresh_tokens",
         sa.Column("id", sa.Uuid(), primary_key=True),
-        sa.Column("user_id", sa.Uuid(), sa.ForeignKey("users.id", ondelete="CASCADE"), nullable=False),
+        sa.Column(
+            "user_id",
+            sa.Uuid(),
+            sa.ForeignKey("users.id", ondelete="CASCADE"),
+            nullable=False,
+        ),
         sa.Column("family_id", sa.Uuid(), nullable=False),
         sa.Column("token_hash", sa.String(64), nullable=False),
         sa.Column("expires_at", sa.DateTime(timezone=True), nullable=False),
         sa.Column("revoked_at", sa.DateTime(timezone=True), nullable=True),
-        sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
+        sa.Column(
+            "created_at",
+            sa.DateTime(timezone=True),
+            server_default=sa.func.now(),
+            nullable=False,
+        ),
         sa.UniqueConstraint("token_hash", name="uq_refresh_token_hash"),
     )
     op.create_index("ix_refresh_tokens_user_id", "refresh_tokens", ["user_id"])
@@ -51,11 +74,20 @@ def upgrade() -> None:
         sa.Column("id", sa.BigInteger(), primary_key=True, autoincrement=True),
         sa.Column("topic", sa.String(64), nullable=False),
         sa.Column("payload", postgresql.JSONB(), nullable=False),
-        sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
+        sa.Column(
+            "created_at",
+            sa.DateTime(timezone=True),
+            server_default=sa.func.now(),
+            nullable=False,
+        ),
         sa.Column("published_at", sa.DateTime(timezone=True), nullable=True),
     )
-    op.create_index("ix_outbox_unpublished", "outbox", ["id"],
-                    postgresql_where=sa.text("published_at IS NULL"))
+    op.create_index(
+        "ix_outbox_unpublished",
+        "outbox",
+        ["id"],
+        postgresql_where=sa.text("published_at IS NULL"),
+    )
 
 
 def downgrade() -> None:

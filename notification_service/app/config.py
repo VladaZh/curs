@@ -4,7 +4,9 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_prefix="NOTIFICATION_")
 
-    database_url: str = "postgresql+asyncpg://booking:booking@localhost:5432/notification"
+    database_url: str = (
+        "postgresql+asyncpg://booking:booking@localhost:5432/notification"
+    )
     rabbitmq_url: str | None = None
     jwt_secret: str = "change-me"
     jwt_algorithm: str = "HS256"

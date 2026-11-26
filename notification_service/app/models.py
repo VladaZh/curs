@@ -1,7 +1,17 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import (Boolean, DateTime, Index, Integer, String, Text, UniqueConstraint, func, text)
+from sqlalchemy import (
+    Boolean,
+    DateTime,
+    Index,
+    Integer,
+    String,
+    Text,
+    UniqueConstraint,
+    func,
+    text,
+)
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -13,7 +23,9 @@ class InboxMessage(Base):
 
     source: Mapped[str] = mapped_column(String(64), primary_key=True)
     message_id: Mapped[str] = mapped_column(String(64), primary_key=True)
-    received_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), index=True)
+    received_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), index=True
+    )
 
 
 class UserReplica(Base):
@@ -52,9 +64,15 @@ class Notification(Base):
     dedup_key: Mapped[str] = mapped_column(String(128))
     last_error: Mapped[str | None] = mapped_column(Text)
     sent_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
 
     __table_args__ = (
         UniqueConstraint("dedup_key", name="uq_notification_dedup"),
-        Index("ix_notifications_due", "next_attempt_at", postgresql_where=text("status IN ('PENDING','SENDING')")),
+        Index(
+            "ix_notifications_due",
+            "next_attempt_at",
+            postgresql_where=text("status IN ('PENDING','SENDING')"),
+        ),
     )

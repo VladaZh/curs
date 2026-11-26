@@ -10,7 +10,11 @@ from .handlers import PoisonMessage, handle_message
 
 log = logging.getLogger("notification.consumer")
 
-BINDINGS = {"identity.events": "user.*", "booking.events": "booking.*", "catalog.events": "restaurant.*"}
+BINDINGS = {
+    "identity.events": "user.*",
+    "booking.events": "booking.*",
+    "catalog.events": "restaurant.*",
+}
 QUEUE, DLX, DLQ = "notification.events", "notification.dlx", "notification.dead"
 
 
@@ -33,9 +37,13 @@ async def consume() -> None:
         dlq = await ch.declare_queue(DLQ, durable=True)
         await dlq.bind(dlx)
 
-        queue = await ch.declare_queue(QUEUE, durable=True, arguments={"x-dead-letter-exchange": DLX})
+        queue = await ch.declare_queue(
+            QUEUE, durable=True, arguments={"x-dead-letter-exchange": DLX}
+        )
         for exchange, pattern in BINDINGS.items():
-            ex = await ch.declare_exchange(exchange, aio_pika.ExchangeType.TOPIC, durable=True)
+            ex = await ch.declare_exchange(
+                exchange, aio_pika.ExchangeType.TOPIC, durable=True
+            )
             await queue.bind(ex, routing_key=pattern)
 
         async with queue.iterator() as it:
@@ -44,7 +52,9 @@ async def consume() -> None:
                     await _process(msg)
                     await msg.ack()
                 except PoisonMessage:
-                    log.exception("poison message -> DLQ (%s %s)", msg.exchange, msg.routing_key)
+                    log.exception(
+                        "poison message -> DLQ (%s %s)", msg.exchange, msg.routing_key
+                    )
                     await msg.reject(requeue=False)
                 except Exception:
                     log.exception("handler failed, requeue")
