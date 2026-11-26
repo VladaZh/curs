@@ -6,7 +6,7 @@ from sqlalchemy import pool
 from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import create_async_engine
 
-from app import models  # noqa: F401  (регистрирует таблицы в metadata)
+from app import models
 from app.config import settings
 from app.db import Base
 

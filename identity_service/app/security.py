@@ -9,8 +9,8 @@ import jwt
 from argon2 import PasswordHasher
 from argon2.exceptions import InvalidHashError, VerificationError
 
-from identity_service.app.config import settings
-from identity_service.app.errors import InvalidToken
+from .config import settings
+from .errors import InvalidToken
 
 
 class PasswordService:

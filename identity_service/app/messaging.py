@@ -7,7 +7,7 @@ from typing import Protocol
 import aio_pika
 from sqlalchemy import select
 
-from identity_service.app.db import SessionFactory
+from .db import SessionFactory
 from .models import OutboxEvent
 
 log = logging.getLogger("identity.messaging")

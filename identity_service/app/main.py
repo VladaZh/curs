@@ -5,12 +5,12 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
-from identity_service.app.api import router
-from identity_service.app.config import settings
-from identity_service.app.db import SessionFactory
-from identity_service.app.errors import DomainError
+from .api import router
+from .config import settings
+from .db import SessionFactory
+from .errors import DomainError
 from .messaging import LogPublisher, RabbitPublisher, relay_loop
-from identity_service.app.service import IdentityService
+from .service import IdentityService
 
 logging.basicConfig(level=logging.INFO)
 

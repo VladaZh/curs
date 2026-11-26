@@ -5,10 +5,10 @@ from sqlalchemy import select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from identity_service.app.config import settings
-from identity_service.app.errors import (AccountLocked, Conflict, Forbidden, InvalidCredentials, InvalidInput,
+from .config import settings
+from .errors import (AccountLocked, Conflict, Forbidden, InvalidCredentials, InvalidInput,
                                          InvalidToken, NotFound)
-from identity_service.app.models import OutboxEvent, RefreshToken, User
+from .models import OutboxEvent, RefreshToken, User
 from .schemas import AdminCreateUser, AdminPatchUser, MePatch, RegisterIn, TokenPair
 from .security import (DUMMY_HASH, CurrentUser, create_access_token, hash_token, new_refresh_token,
                         passwords)

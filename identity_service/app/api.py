@@ -4,11 +4,11 @@ from fastapi import APIRouter, Depends, Response
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from identity_service.app.db import get_session
-from identity_service.app.schemas import (AdminCreateUser, AdminPatchUser, LoginIn, MePatch, RefreshIn, RegisterIn,
+from .db import get_session
+from .schemas import (AdminCreateUser, AdminPatchUser, LoginIn, MePatch, RefreshIn, RegisterIn,
                                           TokenPair, UserOut)
-from identity_service.app.security import CurrentUser, decode_access_token
-from identity_service.app.service import IdentityService
+from .security import CurrentUser, decode_access_token
+from .service import IdentityService
 
 router = APIRouter(prefix="/v1")
 bearer = HTTPBearer()
@@ -22,7 +22,6 @@ def current_user(creds: HTTPAuthorizationCredentials = Depends(bearer)) -> Curre
     return decode_access_token(creds.credentials)
 
 
-# ---- публичные ----
 @router.post("/auth/register", response_model=UserOut, status_code=201)
 async def register(body: RegisterIn, svc: IdentityService = Depends(get_service)):
     return await svc.register(body)
@@ -44,7 +43,6 @@ async def logout(body: RefreshIn, svc: IdentityService = Depends(get_service)):
     return Response(status_code=204)
 
 
-# ---- профиль ----
 @router.get("/users/me", response_model=UserOut)
 async def me(svc: IdentityService = Depends(get_service), actor: CurrentUser = Depends(current_user)):
     return await svc.get_user(actor.id)
@@ -56,7 +54,6 @@ async def update_me(body: MePatch, svc: IdentityService = Depends(get_service),
     return await svc.update_me(actor, body)
 
 
-# ---- администрирование ----
 @router.post("/admin/users", response_model=UserOut, status_code=201)
 async def admin_create(body: AdminCreateUser, svc: IdentityService = Depends(get_service),
                        actor: CurrentUser = Depends(current_user)):
