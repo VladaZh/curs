@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./src/styles/variables.css">
+    <link rel="stylesheet" href="./src/styles/base.css">
+    <link rel="stylesheet" href="./src/styles/layout.css">
+    <link rel="stylesheet" href="./src/styles/components.css">
+    <link rel="stylesheet" href="./src/styles/responsive.css">
+    <title>Вход</title>
+    <script src="./src/scripts/auth.js" type="module"></script>
+  </head>
+  <body class="page">
+    <a class="back-link" href="index.html">← все рестораны</a>
+    <main class="content">
+      <section class="form-section form-section--full">
+        <h3 id="auth-title">Вход</h3>
+        <div class="reserve-card">
+          <div class="tabs" role="tablist">
+            <button type="button" class="tab" role="tab" data-tab="login" aria-selected="true">Вход</button>
+            <button type="button" class="tab" role="tab" data-tab="register" aria-selected="false">Регистрация</button>
+          </div>
+
+          <form class="reserve-form" data-form="login" novalidate>
+            <input type="email" id="login-email" name="email" class="form_input" placeholder="Email" required
+              maxlength="100" autocomplete="email" inputmode="email"
+              pattern="[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}"
+              data-error-message="Введите корректный email адрес">
+            <span class="form-error" id="login-email-error"></span>
+
+            <input type="password" id="login-password" name="password" class="form_input" placeholder="Пароль" required
+              minlength="8" maxlength="128" autocomplete="current-password"
+              data-error-message="Пароль должен быть от 8 до 128 символов">
+            <span class="form-error" id="login-password-error"></span>
+
+            <p class="form-status form-status--error" data-role="status" role="alert" hidden></p>
+            <button type="submit" class="reserve-button form-button" disabled>войти</button>
+          </form>
+
+          <form class="reserve-form" data-form="register" novalidate hidden>
+            <input type="text" id="reg-name" name="name" class="form_input" placeholder="Имя" required
+              minlength="2" maxlength="40" autocomplete="name"
+              pattern="^[a-zA-Zа-яА-ЯёЁ\s\-]+$"
+              data-error-message="Разрешены только латинские, кириллические буквы, знаки дефиса и пробелы">
+            <span class="form-error" id="reg-name-error"></span>
+
+            <input type="email" id="reg-email" name="email" class="form_input" placeholder="Email" required
+              maxlength="100" autocomplete="email" inputmode="email"
+              pattern="[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}"
+              data-error-message="Введите корректный email адрес">
+            <span class="form-error" id="reg-email-error"></span>
+
+            <input type="tel" id="reg-phone" name="phone" class="form_input" placeholder="Телефон (необязательно)"
+              maxlength="20" autocomplete="tel" inputmode="tel">
+            <span class="form-error" id="reg-phone-error"></span>
+
+            <input type="password" id="reg-password" name="password" class="form_input" placeholder="Пароль (от 8 символов)" required
+              minlength="8" maxlength="128" autocomplete="new-password"
+              data-error-message="Пароль должен быть от 8 до 128 символов">
+            <span class="form-error" id="reg-password-error"></span>
+
+            <p class="form-status form-status--error" data-role="status" role="alert" hidden></p>
+            <button type="submit" class="reserve-button form-button" disabled>зарегистрироваться</button>
+          </form>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

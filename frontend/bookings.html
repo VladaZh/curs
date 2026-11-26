@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./src/styles/variables.css">
+    <link rel="stylesheet" href="./src/styles/base.css">
+    <link rel="stylesheet" href="./src/styles/layout.css">
+    <link rel="stylesheet" href="./src/styles/components.css">
+    <link rel="stylesheet" href="./src/styles/responsive.css">
+    <title>Мои брони</title>
+    <script src="./src/scripts/bookings.js" type="module"></script>
+  </head>
+  <body class="page">
+    <div class="account-bar" data-account-bar></div>
+    <a class="back-link" href="index.html">← все рестораны</a>
+    <main class="content">
+      <section class="bookings-section">
+        <h2>Мои брони</h2>
+        <p class="empty-state" id="empty" hidden>У вас пока нет броней. Выберите ресторан и забронируйте столик.</p>
+        <ul class="bookings-list" id="upcoming"></ul>
+        <h3 class="bookings-heading" id="history-heading" hidden>История</h3>
+        <ul class="bookings-list" id="history"></ul>
+      </section>
+    </main>
+  </body>
+</html>

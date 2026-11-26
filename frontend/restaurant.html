@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./src/styles/variables.css">
+    <link rel="stylesheet" href="./src/styles/base.css">
+    <link rel="stylesheet" href="./src/styles/layout.css">
+    <link rel="stylesheet" href="./src/styles/components.css">
+    <link rel="stylesheet" href="./src/styles/responsive.css">
+    <title>Ресторан</title>
+    <script src="./src/scripts/restaurant.js" type="module"></script>
+  </head>
+  <body class="page">
+    <div class="account-bar" data-account-bar></div>
+    <main class="content">
+      <div class="state-message" id="state">Загрузка...</div>
+
+      <div id="restaurant" hidden>
+        <section class="main-section">
+          <nav>
+            <ul class="menu">
+              <div class="left-group">
+                <li class="menu-item">
+                  <a href="#about-section" class="menu_button about">о нас</a>
+                </li>
+                <li class="menu-item">
+                  <a href="#contacts" class="menu_button contacts">контакты</a>
+                </li>
+                <li class="menu-item">
+                  <a href="index.html" class="menu_button contacts">все рестораны</a>
+                </li>
+              </div>
+              <li class="menu-item">
+                <a href="#form" class="reserve-button reserve menu_button">забронировать столик</a>
+              </li>
+            </ul>
+          </nav>
+          <h1 id="restaurant-name"></h1>
+        </section>
+
+        <section class="about-section" id="about-section">
+          <h2 id="about-name"></h2>
+          <p class="about-description" id="about-description"></p>
+          <ul class="hours-list" id="hours-list" aria-label="Часы работы"></ul>
+          <section class="container-photo">
+            <div class="photo photo-left"></div>
+            <div class="photo photo-center"></div>
+            <div class="photo photo-right"></div>
+          </section>
+        </section>
+
+        <section class="city-info-section" id="city-info">
+          <div class="city-info-container">
+            <h3>Традиционные блюда</h3>
+            <ul id="dishes-list" class="dishes-grid"></ul>
+          </div>
+        </section>
+
+        <section class="form-section" id="form">
+          <h3>Забронировать столик</h3>
+          <div class="reserve-card" id="reserve-card">
+
+            <div class="login-panel" data-step="login" hidden>
+              <p>Чтобы забронировать столик, войдите в аккаунт или зарегистрируйтесь.</p>
+              <div class="hold-actions">
+                <a class="reserve-button" href="auth.html#login" data-keep-next="login">войти</a>
+                <a class="reserve-button" href="auth.html#register" data-keep-next="register">регистрация</a>
+              </div>
+            </div>
+
+            <form class="reserve-form" data-step="form" novalidate hidden>
+              <input
+                type="datetime-local"
+                name="user-datetime"
+                id="user-datetime"
+                class="form_input form_input-datetime"
+                required
+                autocomplete="off"
+                aria-label="Дата и время"
+                data-error-message="Введите корректную дату и время">
+              <span class="form-error" id="user-datetime-error"></span>
+              <p class="form-hint" data-role="tz"></p>
+
+              <input
+                type="number"
+                name="guests"
+                id="guests"
+                class="form_input form_input-guests"
+                placeholder="Количество гостей"
+                required
+                min="1"
+                max="10"
+                step="1"
+                inputmode="numeric"
+                data-error-message="Укажите количество гостей от 1 до 10">
+              <span class="form-error" id="guests-error"></span>
+
+              <p class="form-status" data-role="status" role="status" hidden></p>
+              <div class="alt-slots" data-role="alternatives"></div>
+
+              <button type="submit" class="reserve-button form-button" disabled>
+                найти столик
+              </button>
+            </form>
+
+            <div class="hold-panel" data-step="hold" hidden>
+              <p>Столик удерживается за вами</p>
+              <div class="hold-timer" data-role="timer" aria-live="off">10:00</div>
+              <ul class="hold-details">
+                <li data-role="hold-details"></li>
+                <li data-role="hold-until"></li>
+              </ul>
+              <p class="hold-note">Подтвердите бронь до конца таймера, иначе столик освободится.</p>
+              <p class="form-status" data-role="hold-status" role="status" hidden></p>
+              <div class="hold-actions">
+                <button type="button" class="reserve-button" data-action="confirm">подтвердить бронь</button>
+                <button type="button" class="reserve-button" data-action="cancel">отменить</button>
+              </div>
+            </div>
+
+            <div class="done-panel" data-step="done" hidden>
+              <h4>Бронь подтверждена</h4>
+              <p data-role="done-details"></p>
+              <p class="hold-note">Подтверждение придёт на вашу почту.</p>
+              <div class="hold-actions">
+                <a class="reserve-button" href="bookings.html">мои брони</a>
+                <button type="button" class="reserve-button" data-action="again">забронировать ещё</button>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <footer class="footer" id="contacts">
+          <h4>Контакты</h4>
+          <div class="container-contacts">
+            <span class="contacts-footer" id="contact-address"></span>
+          </div>
+        </footer>
+      </div>
+    </main>
+  </body>
+</html>
